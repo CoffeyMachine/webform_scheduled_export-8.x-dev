@@ -6,11 +6,39 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\example\ExampleInterface;
 
 /**
+ * Defines the Example entity.
+ *
+ * @ConfigEntityType(
+ *   id = "webform_scheduled_export",
+ *   label = @Translation("Webform Scheduled Export"),
+ *   handlers = {
+ *     "list_builder" = "Drupal\webform_scheduled_export\Controller\WebformScheduledExportListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\webform_scheduled_export\Form\ExampleForm",
+ *       "edit" = "Drupal\webform_scheduled_export\Form\ExampleForm",
+ *       "delete" = "Drupal\webform_scheduled_export\Form\ExampleDeleteForm",
+ *     }
+ *   },
+ *   config_prefix = "webform_scheduled_export",
+ *   admin_permission = "administer site configuration",
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "label" = "label",
+ *   },
+ *   links = {
+ *     "edit-form" = "/admin/config/system/example/{example}",
+ *     "delete-form" = "/admin/config/system/example/{example}/delete",
+ *   }
+ * )
+ */
+
+/**
  * @file
  * The webform scheduled config entity.
  */
 
 class WebformScheduledExport extends ConfigEntityBase implements WebformScheduledExportInterface {
+	
 	/**
    * The Example ID.
    *

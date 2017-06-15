@@ -1,4 +1,4 @@
-entity.webform.scheduled_export:
+entity.webform_scheduled_export.collection:
   path: '/admin/structure/webform/manage/{webform}/results/scheduled-export'
   defaults:
     _entity_list: 'webform_scheduled_export'
