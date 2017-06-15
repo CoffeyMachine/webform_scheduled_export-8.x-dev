@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * Webform scheduled export install file.
+ */
+
+/**
+ * Implements hook_install().
+ *
+function webform_scheduled_export_install() {
+  module_load_include('module', 'mailsystem', 'mailsystem');
+  mailsystem_set(array(
+    'webform_scheduled_export' => 'MimeMailSystem',
+  ));
+}
+
+/**
+ * Implements hook_schema().
+ *
+function webform_scheduled_export_schema() {
+  $schema['webform_scheduled_export_config'] = array(
+    'description' => 'The base table for scheduled export config',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key for the config',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'webform_nid' => array(
+        'description' => 'The node id of the webform',
+        'type' => 'int',
+        'length' => 12,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating whether the config is enabled.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'email' => array(
+        'description' => 'The emails we will send the report to.',
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'send_date' => array(
+        'description' => 'The Unix timestamp when the export should be sent.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'delivered' => array(
+        'description' => 'A flag to track if it has already been sent for the current send_date.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'frequency' => array(
+        'description' => 'The frequency of how often the export should be sent if it repeats.',
+        'type' => 'varchar',
+        'length' => 50,
+        'default' => 'once',
+      ),
+      'delivery_method' => array(
+        'description' => 'The plugin id for the delivery method.',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'export_config' => array(
+        'description' => 'The serialized config from Webform.',
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+    ),
+    'primary key' => array('id'),
+    'foreigh keys' => array(
+      'webform_nid' => array(
+        'table' => 'node',
+        'columns' => array('webform_nid' => 'nid'),
+      ),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Add the new column.
+ *
+function webform_scheduled_export_update_7001() {
+  $schema = drupal_get_schema('webform_scheduled_export_config');
+  db_add_field('webform_scheduled_export_config', 'delivery_method', $schema['fields']['delivery_method']);
+
+  db_update('webform_scheduled_export_config')
+    ->fields(array('delivery_method' => WEBFORM_SCHEDULED_EXPORT_DEFAULT_DELIVERY))
+    ->execute();
+
+  // Rename the sent field.
+  db_change_field('webform_scheduled_export_config', 'sent', 'delivered', $schema['fields']['delivered']);
+}
+ * */

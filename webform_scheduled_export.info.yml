@@ -1,0 +1,14 @@
+name: 'Webform Scheduled Export'
+type: module
+description: 'Allows you to schedule exports of Webform Submissions.'
+core: 8.x
+version: 1.x-dev
+package: 'Webform'
+
+
+
+dependencies:
+  - webform
+  - entity
+  - date_popup
+  - mimemail

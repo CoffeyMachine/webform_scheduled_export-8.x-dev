@@ -1,0 +1,10 @@
+webform_scheduled_export.webform_scheduled_export.*:
+  type: config_entity
+  label: 'Webform Scheduled Export Configuration'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'

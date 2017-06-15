@@ -1,0 +1,5 @@
+entity.webform_scheduled_export.add_form:
+  route_name: 'entity.webform_scheduled_export.add_form'
+  title: 'Add Scheduled Export'
+  appears_on:
+    - entity.webform_scheduled_export.collection

@@ -1,0 +1,7 @@
+entity.webform.scheduled_export:
+  path: '/admin/structure/webform/manage/{webform}/results/scheduled-export'
+  defaults:
+    _entity_list: 'webform_scheduled_export'
+    _title_callback: '\Drupal\webform\Controller\WebformController::title'
+  requirements:
+    _permission: 'administer site configuration'
