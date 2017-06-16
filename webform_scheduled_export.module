@@ -1,141 +1,40 @@
 <?php
 
-/**
- * @file
- * Webform scheduled export module.
- */
+//use Drupal\Core\Serialization\Yaml;
+use Drupal\webform\Controller\WebformResultsExportController;
+use Drupal\webform\Entity\Webform;
+//use Drupal\webform\Form\WebformResultsClearForm;
+//use Drupal\webform\Form\WebformSubmissionsPurgeForm;
+//use Drupal\webform\Utility\WebformYaml;
+//use Psr\Log\LogLevel;
 
-//define('WEBFORM_SCHEDULED_EXPORT_DATE_FORMAT', 'Y-m-d H:i');
-//define('WEBFORM_SCHEDULED_EXPORT_DEFAULT_DELIVERY', 'WseEmailAttachment');
-
-// These are not autoloaded so manually include them.
-//require_once 'plugins/delivery_method/WseDeliveryMethodInterface.php';
-//require_once 'plugins/delivery_method/WseDeliveryMethod.php';
-
-/**
- * Implements hook_entity_info().
- *
-function webform_scheduled_export_entity_info() {
-  $return = array(
-    'webform_scheduled_export_config' => array(
-      'label' => 'Scheduled Export Config',
-      'label callback' => 'webform_scheduled_export_config_label',
-      'entity class' => '\WebformScheduledExportConfig',
-      'controller class' => '\EntityAPIController',
-      'base table' => 'webform_scheduled_export_config',
-      'entity keys' => array(
-        'id' => 'id',
-        'label' => '',
-      ),
-      'view modes' => array(),
-      'admin ui' => array(
-        'controller class' => '\WebformScheduledExportUIController',
-        'path' => 'node/%webform_menu/webform-results/scheduled-export',
-      ),
-    ),
-  );
-  return $return;
-}
-
-/**
- * Implements hook_ctools_plugin_type().
- *
-function webform_scheduled_export_ctools_plugin_type() {
-  $plugins['delivery_method'] = array(
-    'classes' => array('class'),
-    'cache' => TRUE,
-    'extension' => 'php',
-  );
-  return $plugins;
-}
-
-/**
- * Implements hook_ctools_plugin_directory().
- *
-function webform_scheduled_export_ctools_plugin_directory($module, $type) {
-  if ($module == 'webform_scheduled_export') {
-    return 'plugins/' . $type;
-  }
-}
-
-/**
- * Implements hook_cron().
- *
 function webform_scheduled_export_cron() {
-  $all_config = WebformScheduledExportConfig::getExportsReadyToSend();
-  foreach ($all_config as $config) {
-    $export_info = webform_scheduled_export_generate_export($config);
 
-    WseDeliveryMethod::createInstance($config->getDeliveryMethod())
-      ->deliver($config, $export_info);
+  //$webform = Webform::load($webform_id);
+  $webform = Webform::load('contact_us');
+  $source_entity = NULL;
 
-    // Mark the configuration as sent now we've handled the email.
-    $config->markDelivered();
+  /** @var \Drupal\webform\WebformSubmissionExporterInterface $submission_exporter */
+  $submission_exporter = \Drupal::service('webform_submission.exporter');
+  $submission_exporter->setWebform($webform);
+  $submission_exporter->setSourceEntity($source_entity);
 
-    // Let other modules know the scheduled export has completed.
-    module_invoke_all('webform_scheduled_export_complete', $config, $export_info);
+/*
+  // Get command options as export options.
+  $export_options = drush_redispatch_get_options();
+  // Convert dashes to underscores.
+  foreach ($export_options as $key => $value) {
+    unset($export_options[$key]);
+    $export_options[str_replace('-', '_', $key)] = $value;
   }
-}
-
-/**
- * Implements hook_mail().
- *
-function webform_scheduled_export_mail($key, &$message, $params) {
-  if (isset($params['context']['webform_scheduled_export_plugin'])) {
-    WseDeliveryMethod::createInstance($params['context']['webform_scheduled_export_plugin'])
-      ->mail($message, $params);
-  }
-}
-
-/**
- * Generates the export file.
- *
- * @param \WebformScheduledExportConfig $config
- *   The scheduled configuration we're generating the export for.
- *
- * @return array
- *   An array of export config.
- *
-function webform_scheduled_export_generate_export(\WebformScheduledExportConfig $config) {
-  // Submit the form which will generate the file to send.
-  module_load_include('inc', 'webform', 'includes/webform.report');
-
-  $node = $config->getWebformNode();
-  $export_config = $config->getExportConfig();
-
-  // Calculate the submission to export and save back to the config.
-  $export_config['sids'] = _webform_scheduled_export_get_sids($node, $export_config);
-
-  // @see https://www.drupal.org/node/2729861
-  $export_info = webform_results_export($node, $export_config['format'], $export_config);
-
-  // We must call post_process() because the legacy Webform API does not and
-  // some of our exporters depend on it.
-  $context = array('node' => $node, 'file_name' => $export_info['file_name']);
-  $export_info['exporter']->post_process($context);
-
-  webform_results_export_success($node, $export_info);
-  return $export_info;
-}
-
-/**
- * Gets the submission ids for this node and export config.
- *
- * @param object $node
- *   The node object.
- * @param array $options
- *   The configuration options from the form.
- *
- * @return array
- *   An array of submission ids.
- *
-function _webform_scheduled_export_get_sids($node, $options) {
-  $query = webform_download_sids_query($node->nid, $options['range']);
-  $query->leftJoin('users', 'u', 'u.uid = ws.uid');
-  $query->fields('u', array('name'));
-  $query->fields('ws');
-  $submissions = webform_get_submissions_load($query);
-
-  return array_keys($submissions);
-}
  */
+  //$export_options += $submission_exporter->getDefaultExportOptions();
+	$export_options = $submission_exporter->getDefaultExportOptions();
+	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', print_r($export_options, true));
+  $submission_exporter->setExporter($export_options);
+
+  WebformResultsExportController::batchSet($webform, $source_entity, $export_options);
+
+  $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
+
+}

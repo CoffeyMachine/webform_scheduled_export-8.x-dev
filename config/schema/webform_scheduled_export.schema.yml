@@ -1,10 +1,18 @@
+# Schema for the configuration files of the Demo configuration module.
+
 webform_scheduled_export.webform_scheduled_export.*:
   type: config_entity
-  label: 'Webform Scheduled Export Configuration'
+  label: 'Webform Submission Export'
   mapping:
-    id:
-      type: string
-      label: 'ID'
     label:
       type: label
       label: 'Label'
+    name:
+      type: string
+      label: 'ID'
+    url:
+      type: string
+      label: 'URL'
+    port:
+      type: label
+      label: 'Port'
