@@ -18,17 +18,9 @@ function webform_scheduled_export_cron() {
   $submission_exporter->setWebform($webform);
   $submission_exporter->setSourceEntity($source_entity);
 
-/*
-  // Get command options as export options.
-  $export_options = drush_redispatch_get_options();
-  // Convert dashes to underscores.
-  foreach ($export_options as $key => $value) {
-    unset($export_options[$key]);
-    $export_options[str_replace('-', '_', $key)] = $value;
-  }
- */
   //$export_options += $submission_exporter->getDefaultExportOptions();
 	$export_options = $submission_exporter->getDefaultExportOptions();
+	
 	$export_options['download'] = FALSE;
 	$export_options['options_format'] = 'separate';
 	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', print_r($export_options, true));
@@ -40,18 +32,17 @@ function webform_scheduled_export_cron() {
 	$form_state->set('source_entity', $source_entity);
 	$form_state->set('export_options', $export_options);
 	
-	\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\CronBatchForm', $form_state);
+	\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\WebformResultsBatchForm', $form_state);
 
   $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
-	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', file_get_contents($file_path));
 	
 	$csv_filename = '/C:/drupal-contactus-output/contact_us-test.csv';
 	$csv = file_get_contents($file_path);
 	
-	 $sftp = new \phpseclib\Net\SFTP('hostname');
-	 if (!$sftp->login('user', 'password')) {
-     \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server.');
-	 }
+	$sftp = new \phpseclib\Net\SFTP('hostname');
+	if (!$sftp->login('user', 'password')) {
+    \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server. Webform results not uploaded.');
+	}
 		
-	 $sftp->put($csv_filename, $csv);
+	$sftp->put($csv_filename, $csv);
 }

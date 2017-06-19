@@ -8,15 +8,15 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Controller\WebformResultsExportController;
 
 /**
- * Implements an example form.
+ * Implements a hidden form to batch process the webform output on cron.
  */
-class CronBatchForm extends FormBase {
+class WebformResultsBatchForm extends FormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'cron_batch_form';
+    return 'webform_scheduled_export_webform_results_batch_form';
   }
 
   /**
@@ -32,20 +32,11 @@ class CronBatchForm extends FormBase {
 
   /**
    * {@inheritdoc}
-   *
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (strlen($form_state->getValue('phone_number')) < 3) {
-      $form_state->setErrorByName('phone_number', $this->t('The phone number is too short. Please enter a full phone number.'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    //if ($form_state['values']['hidden_value'] == 1) {
+   	if ($form_state->get('hidden_value') == 1) {
 	    WebformResultsExportController::batchSet($form_state->get('webform'), $form_state->get('source_entity'), $form_state->get('export_options'));
-	  //}
+	  }
   }
 
 }
