@@ -1,12 +1,11 @@
 <?php
 
-//use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Controller\WebformResultsExportController;
 use Drupal\webform\Entity\Webform;
-//use Drupal\webform\Form\WebformResultsClearForm;
-//use Drupal\webform\Form\WebformSubmissionsPurgeForm;
-//use Drupal\webform\Utility\WebformYaml;
-//use Psr\Log\LogLevel;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Form\FormStateInterface;
+use \phpseclib\Net;
+include __DIR__ . '/vendor/autoload.php';
 
 function webform_scheduled_export_cron() {
 
@@ -30,11 +29,29 @@ function webform_scheduled_export_cron() {
  */
   //$export_options += $submission_exporter->getDefaultExportOptions();
 	$export_options = $submission_exporter->getDefaultExportOptions();
+	$export_options['download'] = FALSE;
+	$export_options['options_format'] = 'separate';
 	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', print_r($export_options, true));
   $submission_exporter->setExporter($export_options);
-
-  WebformResultsExportController::batchSet($webform, $source_entity, $export_options);
+	
+	$form_state = new FormState();
+	$form_state->set('hidden_value', 1);
+	$form_state->set('webform', $webform);
+	$form_state->set('source_entity', $source_entity);
+	$form_state->set('export_options', $export_options);
+	
+	\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\CronBatchForm', $form_state);
 
   $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
-
+	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', file_get_contents($file_path));
+	
+	$csv_filename = '/C:/drupal-contactus-output/contact_us-test.csv';
+	$csv = file_get_contents($file_path);
+	
+	 $sftp = new \phpseclib\Net\SFTP('hostname');
+	 if (!$sftp->login('user', 'password')) {
+     \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server.');
+	 }
+		
+	 $sftp->put($csv_filename, $csv);
 }
