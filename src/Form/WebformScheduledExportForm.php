@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\webform_scheduled_export\Form\AddWebserviceForm.
- */
 
 namespace Drupal\webform_scheduled_export\Form;
 
@@ -12,12 +8,13 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\webform_scheduled_export\Entity\WebformScheduledExport;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityForm;
 
 
 /**
- * Implements an example form.
+ * Implements the Webform Scheduled Export configuration form.
  */
-class AddWebformScheduledExportForm extends FormBase {
+class WebformScheduledExportForm extends EntityForm {
 
   /**
    * The webservice storage.
@@ -53,7 +50,7 @@ class AddWebformScheduledExportForm extends FormBase {
     return new static(
       // We only care about the Webservice enities in this form, therefore
       // we directly use and store the right storage.
-      $container->get('entity_type.manager')->getStorage('webform_scheduled_export_webform_scheduled_export'),
+      $container->get('entity_type.manager')->getStorage('webform_scheduled_export'),
       $container->get('entity.query')
     );
   }
@@ -62,7 +59,7 @@ class AddWebformScheduledExportForm extends FormBase {
    * {@inheritdoc}.
    */
   public function getFormID() {
-    return 'webform_scheduled_export_webform_scheduled_export_add';
+    return 'webform_scheduled_export_add';
   }
 
   /**
@@ -75,7 +72,7 @@ class AddWebformScheduledExportForm extends FormBase {
                    '<p>' . $this->t('In this demo we have defined a "webservice" configuration entity. Each record is one webservice configuration which stores a name, URL and port number for each webservice.') . '</p>',
     );
 
-    // Show all websform entities in a table.
+    // Show all webform entities in a table.
     $entities = $this->getAllWebservices();
     $form['entities'] = array(
       '#type' => 'table',
@@ -96,12 +93,14 @@ class AddWebformScheduledExportForm extends FormBase {
         array('#markup' => $webserice->port),
       );
     }
-
+		
+		$entity = $this->entity;
     $form['label'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => '255',
       '#description' => $this->t('A unique name for this webservice.'),
+      '#default_value' => $entity->getLabel(),
     );
     $form['name'] = array(
       '#type' => 'machine_name',
@@ -110,18 +109,21 @@ class AddWebformScheduledExportForm extends FormBase {
       '#machine_name' => array(
         'exists' => array($this, 'exists'),
       ),
+      '#default_value' => $entity->id(),
     );
     $form['url'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('URL'),
       '#maxlength' => '255',
       '#description' => $this->t('The URL of this webservice. For example: http://example.com'),
+      '#default_value' => $entity->getUrl(),
     );
     $form['port'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Port'),
       '#maxlength' => '6',
       '#description' => $this->t('The port of this webservice. For example: 8080'),
+      '#default_value' => $entity->getPort(),
     );
 
     $form['actions']['#type'] = 'actions';
@@ -137,12 +139,21 @@ class AddWebformScheduledExportForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Instantiate and save a new Webservice config entity.
-    // The constructor needs an array of data, keyed by property name.
-    $webservice = new Webservice($form_state->getValues(), 'webform_scheduled_export_webform_scheduled_export');
-    $webservice->save();
-
-    drupal_set_message($this->t('Webform @name was saved.', array('@name' => $form_state->getValue('label'))));
+    /** @var \Drupal\sample_config_entity\Entity\Ball $entity */
+    $entity = $this->entity;
+    // Prevent leading and trailing spaces.
+    $entity->set('label', $form_state->getValue('label'));
+    $entity->set('name', $form_state->getValue('name'));
+    $entity->set('url', $form_state->getValue('url'));
+		$entity->set('port', $form_state->getValue('port'));
+    $status = $entity->save();
+    //$edit_link = $this->entity->link($this->t('Edit'));
+    $action = $status == SAVED_UPDATED ? 'updated' : 'added';
+    // Tell the user we've updated their ball.
+    drupal_set_message($this->t('Webform Scheduled Export %label has been %action.', ['%label' => $entity->label(), '%action' => $action]));
+    //$this->logger('sample_config_entity')->notice('Webform Scheduled Export %label has been %action.', array('%label' => $entity->label(), 'link' => $edit_link));
+    // Redirect back to the list view.
+    $form_state->setRedirect('webform_scheduled_export.collection');
   }
 
   /**

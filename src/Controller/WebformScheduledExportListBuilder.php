@@ -30,5 +30,29 @@ class WebformScheduledExportListBuilder extends ConfigEntityListBuilder {
 
     return $row + parent::buildRow($entity);
   }
+	
+	/**
+   * {@inheritdoc}
+   */
+  public function getDefaultOperations(EntityInterface $entity) {
+    $operations = parent::getDefaultOperations($entity);
+ 
+    if ($entity->hasLinkTemplate('edit')) {
+      $operations['edit'] = array(
+        'title' => t('Edit Scheduled Export'),
+        'weight' => 20,
+        'url' => $entity->urlInfo('edit'),
+      );
+    }
+		if ($entity->hasLinkTemplate('delete')) {
+      $operations['delete'] = array(
+        'title' => t('Delete Scheduled Export'),
+        'weight' => 21,
+        'url' => $entity->urlInfo('delete'),
+      );
+    }
+		
+    return $operations;
+  }
 
 }

@@ -1,8 +1,28 @@
 webform_scheduled_export.collection:
-  path: '/admin/structure/webform/manage/{webform}/results/scheduled-export'
+  path: '/admin/structure/webform/scheduled-export'
   defaults:
     _entity_list: 'webform_scheduled_export'
     _title: 'Webform Scheduled Export'
   requirements:
     _permission: 'administer site configuration'
-
+entity.webform_scheduled_export.edit:
+  path: '/admin/structure/webform/scheduled-export/{webform_scheduled_export}/edit'
+  defaults:
+    _entity_form: webform_scheduled_export.default
+    _title: 'Edit Scheduled Export'
+  requirements:
+    _permission: 'administer site configuration'
+webform_scheduled_export.add:
+  path: '/admin/structure/webform/scheduled-export/add'
+  defaults:
+    _entity_form: webform_scheduled_export.default
+    _title: 'Add Scheduled Export'
+  requirements:
+    _permission: 'administer site configuration'
+entity.webform_scheduled_export.delete:
+  path: '/admin/structure/webform/scheduled-export/{webform_scheduled_export}/delete'
+  defaults:
+    _entity_form: webform_scheduled_export.delete
+    _title: 'Delete Scheduled Export'
+  requirements:
+    _permission: 'administer site configuration'
