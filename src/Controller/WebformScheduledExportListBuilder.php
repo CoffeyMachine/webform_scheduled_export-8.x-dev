@@ -14,8 +14,8 @@ class WebformScheduledExportListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['label'] = $this->t('Webform Scheduled Export');
-    $header['id'] = $this->t('Machine name');
+    $header['label'] = $this->t('Title');
+    $header['webform'] = $this->t('Webform');
     return $header + parent::buildHeader();
   }
 
@@ -24,7 +24,7 @@ class WebformScheduledExportListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $this->getLabel($entity);
-    $row['id'] = $entity->id();
+    $row['webform'] = $entity->webform;
 
     // You probably want a few more properties here...
 

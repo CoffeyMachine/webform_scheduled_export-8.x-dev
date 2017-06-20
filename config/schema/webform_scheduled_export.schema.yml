@@ -1,18 +1,79 @@
-# Schema for the configuration files of the Demo configuration module.
+# Schema for the configuration files
 
 webform_scheduled_export.webform_scheduled_export.*:
   type: config_entity
   label: 'Webform Submission Export'
   mapping:
+    id:
+      type: string
+      label: 'ID'
     label:
       type: label
       label: 'Label'
-    name:
+    sftp_hostname:
       type: string
-      label: 'ID'
-    url:
+      label: 'SFTP Hostname'
+    sftp_username:
       type: string
-      label: 'URL'
-    port:
-      type: label
-      label: 'Port'
+      label: 'SFTP Username'
+    sftp_password:
+      type: string
+      label: 'SFTP Password'
+    sftp_directory:
+      type: string
+      label: 'SFTP Directory'
+    webform:
+      type: mapping
+      label: 'Webform'
+      mapping:
+        target_id:
+          type: string
+          label: 'Value'
+        target_uuid:
+          type: string
+          label: 'Target UUID'
+    exporter:
+      type: string
+      label: 'Results exporter'
+    delimiter:
+      type: string
+      label: 'Delimiter text format'
+    multiple_delimiter:
+      type: string
+      label: 'Element multiple values delimiter'
+    excel:
+      type: boolean
+      label: 'Open HTML table in Excel'
+    file_name:
+      type: string
+      label: 'File name'
+    header_format:
+      type: string
+      label: 'Column header format'
+    header_prefix:
+      type: boolean
+      label: 'Column header prefix'
+    header_prefix_key_delimiter:
+      type: string
+      label: 'Column header prefix key delimiter'
+    header_prefix_label_delimiter:
+      type: string
+      label: 'Column header prefix label delimiter'
+    entity_reference_format:
+      type: string
+      label: 'Options format'
+    options_format:
+      type: string
+      label: 'Options item format'
+    options_item_format:
+      type: string
+      label: 'Entity reference format'
+    likert_answers_format:
+      type: string
+      label: 'Likert answers format'
+    signature_format:
+      type: string
+      label: 'Signature format'
+    composite_element_item_format:
+      type: string
+      label: 'Composite element item format'

@@ -29,52 +29,37 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  * 		 "delete" = "/admin/structure/webform/scheduled-export/{webform_scheduled_export}/delete"
  *   },
  *   entity_keys = {
- *     "id" = "name",
+ *     "id" = "id",
  *     "label" = "label",
  *   }
  * )
  */
 class WebformScheduledExport extends ConfigEntityBase {
 
-  /**
-   * The webform_scheduled_export label.
-   *
-   * @var string
-   */
   public $label;
+  public $id;
+  public $sftp_hostname;
+  public $sftp_username;
+	public $sftp_password;
+	public $sftp_directory;
+	public $webform;
+	public $exporter;
+	public $delimiter;
+	public $multiple_delimiter;
+	public $excel;
+	public $file_name;
+	public $header_format;
+	public $header_prefix;
+	public $header_prefix_key_delimiter;
+	public $header_prefix_label_delimiter;
+	public $entity_reference_format;
+	public $options_format;
+	public $options_item_format;
+	public $likert_answers_format;
+	public $signature_format;
+	public $composite_element_item_format;
+	
 
-  /**
-   * The webform_scheduled_export machine readable name.
-   *
-   * @var string
-   */
-  public $name;
-
-  /**
-   * The webform_scheduled_export URL.
-   *
-   * @var string
-   */
-  public $url;
-
-  /**
-   * The webform_scheduled_export port.
-   *
-   * @var string
-   */
-  public $port;
-
-  /**
-   * Overrides Drupal\Core\Entity\Entity::id().
-   */
-  public function id() {
-    // It would have been easier to use "id" here instead of "name". But
-    // "name" is used here to demonstrate what happens if a non-default
-    // variable name is used. See "entity_keys" in the ConfigEntityType
-    // annotation too.
-    return $this->name;
-  }
-  
   public function getLabel() {
     return $this->label;
   }

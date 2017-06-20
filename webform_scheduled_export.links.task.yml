@@ -1,0 +1,4 @@
+webform_scheduled_export.collection:
+  title: 'Scheduled Export'
+  route_name: webform_scheduled_export.collection
+  base_route: entity.webform.collection
