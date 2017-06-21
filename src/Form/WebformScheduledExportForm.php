@@ -11,15 +11,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\webform\WebformExporterManager;
 use Drupal\webform_scheduled_export\Entity\WebformScheduledExport;
 
-
-
 /**
  * Implements the Webform Scheduled Export configuration form.
  */
 class WebformScheduledExportForm extends EntityForm {
 
   /**
-   * The webservice storage.
+   * The entity storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
@@ -52,8 +50,6 @@ class WebformScheduledExportForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      // We only care about the Webservice enities in this form, therefore
-      // we directly use and store the right storage.
       $container->get('entity_type.manager')->getStorage('webform_scheduled_export'),
       $container->get('entity.query')
     );
@@ -73,7 +69,6 @@ class WebformScheduledExportForm extends EntityForm {
 		$entity = $this->entity;
     
     //format values
-    
 		$export_options['label'] = $entity->label;
 		$export_options['id'] = $entity->id;
 		$export_options['sftp_hostname'] = $entity->sftp_hostname;
@@ -202,11 +197,9 @@ class WebformScheduledExportForm extends EntityForm {
 		}
 		
     $status = $entity->save();
-    //$edit_link = $this->entity->link($this->t('Edit'));
     $action = $status == SAVED_UPDATED ? 'updated' : 'added';
-    // Tell the user we've updated their ball.
+    // Tell the user we've updated their Scheduled Export.
     drupal_set_message($this->t('Webform Scheduled Export %label has been %action.', ['%label' => $entity->label(), '%action' => $action]));
-    //$this->logger('sample_config_entity')->notice('Webform Scheduled Export %label has been %action.', array('%label' => $entity->label(), 'link' => $edit_link));
     // Redirect back to the list view.
     $form_state->setRedirect('webform_scheduled_export.collection');
   }

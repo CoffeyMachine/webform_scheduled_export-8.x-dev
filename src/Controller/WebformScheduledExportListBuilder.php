@@ -6,7 +6,7 @@ use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
- * Provides a listing of Example.
+ * Provides a listing of Scheduled Exports.
  */
 class WebformScheduledExportListBuilder extends ConfigEntityListBuilder {
 
@@ -25,8 +25,6 @@ class WebformScheduledExportListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $this->getLabel($entity);
     $row['webform'] = $entity->webform;
-
-    // You probably want a few more properties here...
 
     return $row + parent::buildRow($entity);
   }

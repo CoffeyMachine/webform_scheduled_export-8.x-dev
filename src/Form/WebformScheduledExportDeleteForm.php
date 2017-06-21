@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
  
 /**
- * Provides a deletion confirmation form for Ball entity.
+ * Provides a deletion confirmation form for webform_scheduled_export entity.
  */
 class WebformScheduledExportDeleteForm extends EntityConfirmFormBase {
  

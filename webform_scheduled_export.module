@@ -12,6 +12,7 @@ function webform_scheduled_export_cron() {
 	$export_configs = \Drupal\webform_scheduled_export\Entity\WebformScheduledExport::loadMultiple();
 	
 	foreach($export_configs as $label => $export) {
+		//format the values as an array
 		$export_options = array();
 		foreach($export as $key => $value) {
 			$export_options[$key] = $value;
@@ -30,19 +31,19 @@ function webform_scheduled_export_cron() {
 		$export_options['download'] = FALSE;
 	  $submission_exporter->setExporter($export_options);
 		
+		//use our dummy form to process the webform export batch
 		$form_state = new FormState();
 		$form_state->set('hidden_value', 1);
 		$form_state->set('webform', $webform);
 		$form_state->set('source_entity', $source_entity);
 		$form_state->set('export_options', $export_options);
-		
 		\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\WebformResultsBatchForm', $form_state);
-	
+	  
 	  $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
-		
 		$csv_filename = $export_options['sftp_directory'] . '/' . $export_options['webform'] . '_' . date('o-m-d_H-i') . '.csv';
 		$csv = file_get_contents($file_path);
 		
+		//upload to the SFTP server
 		$sftp = new \phpseclib\Net\SFTP($export_options['sftp_hostname']);
 		if (!$sftp->login($export_options['sftp_username'], $export_options['sftp_password'])) {
 	    \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server. Webform results not uploaded.');
@@ -50,6 +51,7 @@ function webform_scheduled_export_cron() {
 			
 		$sftp->put($csv_filename, $csv);
 		
+		//delete the tmp file
 		@unlink($file_path);
 	}
 }
