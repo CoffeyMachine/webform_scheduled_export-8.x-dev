@@ -2,47 +2,54 @@
 
 use Drupal\webform\Controller\WebformResultsExportController;
 use Drupal\webform\Entity\Webform;
+use Drupal\webform_scheduled_export\Entity\WebformScheduledExport;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use \phpseclib\Net;
 include __DIR__ . '/vendor/autoload.php';
 
 function webform_scheduled_export_cron() {
-
-  //$webform = Webform::load($webform_id);
-  $webform = Webform::load('contact_us');
-  $source_entity = NULL;
-
-  /** @var \Drupal\webform\WebformSubmissionExporterInterface $submission_exporter */
-  $submission_exporter = \Drupal::service('webform_submission.exporter');
-  $submission_exporter->setWebform($webform);
-  $submission_exporter->setSourceEntity($source_entity);
-
-  //$export_options += $submission_exporter->getDefaultExportOptions();
-	$export_options = $submission_exporter->getDefaultExportOptions();
+	$export_configs = \Drupal\webform_scheduled_export\Entity\WebformScheduledExport::loadMultiple();
 	
-	$export_options['download'] = FALSE;
-	$export_options['options_format'] = 'separate';
-	//file_put_contents('C:\Users\david\Clients\Sensis\Altamed\tmp\submission_export_options.txt', print_r($export_options, true));
-  $submission_exporter->setExporter($export_options);
-	
-	$form_state = new FormState();
-	$form_state->set('hidden_value', 1);
-	$form_state->set('webform', $webform);
-	$form_state->set('source_entity', $source_entity);
-	$form_state->set('export_options', $export_options);
-	
-	\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\WebformResultsBatchForm', $form_state);
-
-  $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
-	
-	$csv_filename = '/C:/drupal-contactus-output/contact_us-test.csv';
-	$csv = file_get_contents($file_path);
-	
-	$sftp = new \phpseclib\Net\SFTP('hostname');
-	if (!$sftp->login('user', 'password')) {
-    \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server. Webform results not uploaded.');
-	}
+	foreach($export_configs as $label => $export) {
+		$export_options = array();
+		foreach($export as $key => $value) {
+			$export_options[$key] = $value;
+		}
 		
-	$sftp->put($csv_filename, $csv);
+	  $webform = Webform::load($export_options['webform']);
+	  $source_entity = NULL;
+	
+	  /** @var \Drupal\webform\WebformSubmissionExporterInterface $submission_exporter */
+	  $submission_exporter = \Drupal::service('webform_submission.exporter');
+	  $submission_exporter->setWebform($webform);
+	  $submission_exporter->setSourceEntity($source_entity);
+	
+	  $export_options += $submission_exporter->getDefaultExportOptions();
+		
+		$export_options['download'] = FALSE;
+	  $submission_exporter->setExporter($export_options);
+		
+		$form_state = new FormState();
+		$form_state->set('hidden_value', 1);
+		$form_state->set('webform', $webform);
+		$form_state->set('source_entity', $source_entity);
+		$form_state->set('export_options', $export_options);
+		
+		\Drupal::formBuilder()->submitForm('Drupal\webform_scheduled_export\Form\WebformResultsBatchForm', $form_state);
+	
+	  $file_path = ($submission_exporter->isArchive()) ? $submission_exporter->getArchiveFilePath() : $submission_exporter->getExportFilePath();
+		
+		$csv_filename = $export_options['sftp_directory'] . '/' . $export_options['webform'] . '_' . date('o-m-d_H-i') . '.csv';
+		$csv = file_get_contents($file_path);
+		
+		$sftp = new \phpseclib\Net\SFTP($export_options['sftp_hostname']);
+		if (!$sftp->login($export_options['sftp_username'], $export_options['sftp_password'])) {
+	    \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server. Webform results not uploaded.');
+		}
+			
+		$sftp->put($csv_filename, $csv);
+		
+		@unlink($file_path);
+	}
 }

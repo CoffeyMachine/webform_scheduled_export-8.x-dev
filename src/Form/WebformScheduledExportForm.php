@@ -224,14 +224,4 @@ class WebformScheduledExportForm extends EntityForm {
     $action = $this->storage->load($id);
     return !empty($action);
   }
-
-  /**
-   * Gets all webform scheduled export entities.
-   *
-   * @return mixed
-   */
-  protected function getAllWebformScheduledExports() {
-    return $this->storage->loadMultiple();
-  }
-
 }

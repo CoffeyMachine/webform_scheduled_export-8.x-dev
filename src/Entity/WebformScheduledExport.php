@@ -58,16 +58,5 @@ class WebformScheduledExport extends ConfigEntityBase {
 	public $likert_answers_format;
 	public $signature_format;
 	public $composite_element_item_format;
-	
-
-  public function getLabel() {
-    return $this->label;
-  }
-  public function getUrl() {
-    return $this->url;
-  }
-  public function getPort() {
-    return $this->port;
-  }
 
 }
