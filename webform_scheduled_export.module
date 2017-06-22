@@ -29,6 +29,12 @@ function webform_scheduled_export_cron() {
 	  $export_options += $submission_exporter->getDefaultExportOptions();
 		
 		$export_options['download'] = FALSE;
+    if($export_options['range_type'] == 'latest') {
+      $export_options['range_type'] = 'serial';
+      $export_options['range_start'] = $export_options['range_begin'];
+    } else {
+      $export_options['range_type'] = 'all';
+    }
 	  $submission_exporter->setExporter($export_options);
 		
 		//use our dummy form to process the webform export batch
@@ -47,9 +53,19 @@ function webform_scheduled_export_cron() {
 		$sftp = new \phpseclib\Net\SFTP($export_options['sftp_hostname']);
 		if (!$sftp->login($export_options['sftp_username'], $export_options['sftp_password'])) {
 	    \Drupal::logger('webform_scheduled_export')->error('Could not connect to SFTP server. Webform results not uploaded.');
+		} else {
+		  $sftp->put($csv_filename, $csv);
+      
+      if($export_options['range_type'] = 'serial') {
+        //get latest webform submission number
+        $submissions = \Drupal::entityQuery('webform_submission')->condition('webform_id', $export_options['webform'])->sort('serial', 'DESC')->execute();
+        $latest_submission = \Drupal\webform\Entity\WebformSubmission::load(reset($submissions));
+        
+        //update entity submission number + 1
+        $export->set('range_begin', $latest_submission->serial() + 1);
+        $export->save();
+      }
 		}
-			
-		$sftp->put($csv_filename, $csv);
 		
 		//delete the tmp file
 		@unlink($file_path);

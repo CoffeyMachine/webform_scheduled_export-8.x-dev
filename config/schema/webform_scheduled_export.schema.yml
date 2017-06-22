@@ -77,3 +77,9 @@ webform_scheduled_export.webform_scheduled_export.*:
     composite_element_item_format:
       type: string
       label: 'Composite element item format'
+    range_type:
+      type: string
+      label: 'Range Type'
+    range_begin:
+      type: integer
+      label: 'Export submissions beginning with this ID'

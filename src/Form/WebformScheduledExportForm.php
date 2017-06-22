@@ -93,6 +93,8 @@ class WebformScheduledExportForm extends EntityForm {
 			$export_options['signature_format'] = $entity->signature_format;
 			$export_options['composite_element_item_format'] = $entity->composite_element_item_format;
 		}
+    $export_options['range_type'] = $entity->range_type;
+    $export_options['range_begin'] = $entity->range_begin;
 		
     $form['label'] = array(
       '#type' => 'textfield',
@@ -151,6 +153,38 @@ class WebformScheduledExportForm extends EntityForm {
     ];
 
 		$this->submissionExporter->buildExportOptionsForm($form, $form_state, $export_options);
+    
+    $form['range'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Range'),
+      '#open' => TRUE,
+      '#description' => $this->t('Configure the range of results to download.'),
+    ];
+    $form['range']['range_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Export'),
+      '#options' => [
+        'all' => $this->t('All submissions'),
+        'latest' => $this->t('New submissions since last export'),
+      ],
+      '#default_value' => $export_options['range_type'],
+    ];
+    $form['range']['range_latest'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['container-inline']],
+      '#states' => [
+        'visible' => [
+          ':input[name="range_type"]' => ['value' => 'latest'],
+        ],
+      ],
+      'range_begin' => [
+        '#type' => 'number',
+        '#title' => $this->t('Start with'),
+        '#description' => $this->t('Only submissions with this serial and greater will be exported. This field is automatically updated by cron. Only change this if you want your next export to begin with a different submission ID.'),
+        '#min' => 1,
+        '#default_value' => $export_options['range_begin'],
+      ],
+    ];
 		
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = array(
@@ -191,7 +225,9 @@ class WebformScheduledExportForm extends EntityForm {
 		$formatted_values['likert_answers_format'] = $values['export']['elements']['likert']['likert_answers_format'];
 		$formatted_values['signature_format'] = $values['export']['elements']['signature']['signature_format'];
 		$formatted_values['composite_element_item_format'] = $values['export']['elements']['composite']['composite_element_item_format'];
-		
+		$formatted_values['range_type'] = $values['range_type'];
+		$formatted_values['range_begin'] = $values['range_begin'];
+    
 		foreach($formatted_values as $key => $value) {
 			$entity->set($key, $value);
 		}

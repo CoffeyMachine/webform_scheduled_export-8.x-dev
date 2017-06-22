@@ -58,5 +58,7 @@ class WebformScheduledExport extends ConfigEntityBase {
 	public $likert_answers_format;
 	public $signature_format;
 	public $composite_element_item_format;
+	public $range_type;
+	public $range_begin;
 
 }
